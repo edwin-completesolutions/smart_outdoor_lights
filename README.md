@@ -75,6 +75,3 @@ Clone or download this repository and copy the `smart_outdoor_lights` folder to:
       const.py
       translations/
         en.json
-
-      const.py
-      en.json
