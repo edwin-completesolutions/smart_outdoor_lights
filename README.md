@@ -1,68 +1,49 @@
-# Smart Outdoor Lights
 
-Smart Outdoor Lights is a Home Assistant custom integration that keeps your outdoor light **dim and cozy in the evening** and **bright and safe when something happens** – motion, a door opening, or a button press.
+the integration enters **night mode**.
 
-It replaces complex automations/blueprints with one small integration per light that:
+### 2. **Night mode continues until your Evening End Time**
+You configure an **Evening End Time**, for example `22:30:00`, `23:00:00`, etc.
 
-- Uses a configurable **sun elevation sensor** to detect “night”
-- Keeps the light at a **low brightness in the evening**
-- Temporarily boosts to **full brightness** on motion, door open, or button press
-- Turns the light **fully off after your configured evening end time**
-- Lets you fine-tune everything via the **UI (config flow + options flow)**
+Before that time:
 
-Current version: `0.1.11`
+#### • Idle → Light at *Dimmed Brightness*  
+(e.g. 20%)
 
----
+#### • Triggered → Light at *Full Brightness*  
+(motion, door opening, or button press)
 
-## How it works (logic overview)
+The boost lasts for your configured **Boost Duration**, then returns to **Dimmed Brightness**.
 
-For each configured entry:
+### 3. **After the Evening End Time**
+Once the clock passes Evening End Time:
 
-- **Daytime (sun elevation above threshold)**  
-  - The integration leaves your light alone.
-  - Motion/door/button triggers are ignored until it becomes “night”.
+- If a boost is active → it finishes first  
+- When done → the light turns **off**
+- It stays off for the rest of the night  
+  (until the sun rises above the threshold again)
 
-- **Nighttime before evening end**  
-  - When sun elevation ≤ your **Sun Elevation Threshold**, “night logic” becomes active.
-  - Between **12:00** and your **Evening End Time**, the light behaves as:
-    - **Idle**: on at `Dimmed Brightness`
-    - **Triggered (motion/door/button)**: on at `Full Brightness` for `Boost Duration` seconds
+### 4. **Daytime**
+If the sun is **above** the elevation threshold, the integration does nothing.
 
-- **After evening end time**  
-  - The evening window ends; the light will:
-    - Finish any active boost
-    - Then turn **off completely**
-
-- **Button behavior**
-  - Button is optional.
-  - If configured, pressing it during the evening/night window behaves like a boost trigger.
-  - Boost duration and brightness are the same as for motion/door.
-
-The integration does not create entities of its own; it simply **controls your existing light** using `light.turn_on` / `light.turn_off` with brightness.
+No dim mode, no boosts.
 
 ---
 
 ## Requirements
 
-- Home Assistant 2023.0+ (async config flow, options flow)
-- One dimmable **light** entity (any `light.*` that supports brightness)
-- One **motion** (or occupancy/presence) `binary_sensor`  
-  Device class: `motion`, `occupancy` or `presence`
-- One **door/opening** `binary_sensor`  
-  Device class: `door` or `opening`
+- Home Assistant 2023.0+
+- A **dimmable light** (supports brightness)
+- A **motion/occupancy/presence** `binary_sensor`
+- A **door/opening** `binary_sensor`
 - A **sun elevation sensor**  
-  - Preferably `sensor.sun_solar_elevation`  
-  - Fallback: `sensor.sun_elevation`  
-  - Or any numeric `sensor` that reports degrees
-- Optional: a **button** entity (`button.*`) to manually trigger boosts
+  - e.g. `sensor.sun_solar_elevation` or `sensor.sun_elevation`
+- Optional: a `button.*` entity for manual brightness boosts
 
 ---
 
 ## Installation
 
 ### 1. Copy the custom component
-
-Clone or download this repository and copy the `smart_outdoor_lights` folder to:
 
 ```text
 <config>/
