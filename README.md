@@ -73,4 +73,8 @@ Clone or download this repository and copy the `smart_outdoor_lights` folder to:
       config_flow.py
       light_manager.py
       const.py
+      translations/
+        en.json
+
+      const.py
       en.json
